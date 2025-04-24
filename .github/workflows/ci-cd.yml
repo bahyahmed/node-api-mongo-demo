@@ -109,5 +109,6 @@ jobs:
 
       - name: Restart app
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }} "\
+          ssh -o StrictHostKeyChecking=no ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }} << 'EOF'
           pm2 start ${{ env.DEPLOY_PATH }}/src/index.js --name node-api --update-env -f
+          EOF
