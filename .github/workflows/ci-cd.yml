@@ -62,14 +62,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build the app
-        run: npm run build
-
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: node-app-dist
-          path: dist/
+          name: node-app-src
+          path: |
+            src/
+            package.json
+            package-lock.json
 
   deploy-staging:
     runs-on: ubuntu-latest
@@ -84,8 +84,8 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: node-app-dist
-          path: ./dist
+          name: node-app-src
+          path: ./app
 
       - name: Setup SSH key
         run: |
@@ -105,10 +105,10 @@ jobs:
 
       - name: Deploy via SCP
         run: |
-          scp -o StrictHostKeyChecking=no -r ./dist/* ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}:${{ env.DEPLOY_PATH }}
+          scp -o StrictHostKeyChecking=no -r ./app/* ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}:${{ env.DEPLOY_PATH }}
 
       - name: Restart app
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }} "\
-          pm2 restart node-api || pm2 start ${{ env.DEPLOY_PATH }}/index.js --name node-api"
+          pm2 start ${{ env.DEPLOY_PATH }}/src/index.js --name node-api --update-env"
 
