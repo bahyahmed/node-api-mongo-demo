@@ -107,6 +107,13 @@ jobs:
         run: |
           scp -o StrictHostKeyChecking=no -r ./app/* ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}:${{ env.DEPLOY_PATH }}
 
+      - name: Install Node.js dependencies on server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }} << 'EOF'
+          cd ${{ env.DEPLOY_PATH }}
+          npm ci
+          EOF
+
       - name: Restart app
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }} << 'EOF'
